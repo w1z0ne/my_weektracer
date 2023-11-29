@@ -1,0 +1,3 @@
+/home/caobohan/Desktop/ray_tracing/my_weektracer/build/CMakeFiles/theNextWeekCpp.dir
+/home/caobohan/Desktop/ray_tracing/my_weektracer/build/CMakeFiles/edit_cache.dir
+/home/caobohan/Desktop/ray_tracing/my_weektracer/build/CMakeFiles/rebuild_cache.dir

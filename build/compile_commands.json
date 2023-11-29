@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/caobohan/Desktop/ray_tracing/my_weektracer/build",
+  "command": "/usr/bin/clang++ -I/home/caobohan/Desktop/ray_tracing/my_weektracer/. -g -std=gnu++11 -o CMakeFiles/theNextWeekCpp.dir/TheNextWeek/main.cc.o -c /home/caobohan/Desktop/ray_tracing/my_weektracer/TheNextWeek/main.cc",
+  "file": "/home/caobohan/Desktop/ray_tracing/my_weektracer/TheNextWeek/main.cc"
+}
+]
