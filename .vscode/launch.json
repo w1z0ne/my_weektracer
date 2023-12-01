@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/theNextWeekCpp",
-            "args": [">","${workspaceFolder}/output/lab3_3.ppm"],
+            "args": ["SH",">","${workspaceFolder}/output/lab7.ppm"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -53,7 +53,7 @@ public:
   image_texture(unsigned char *pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
   virtual vec3 value(float u, float v, const vec3& p) const;
   unsigned char *data;
-  int nx, ny;
+  int nx, ny; //图片的尺寸
 };
 
 vec3 image_texture::value(float u, float v, const vec3& p) const {

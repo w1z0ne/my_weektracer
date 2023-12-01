@@ -22,14 +22,16 @@ vec3 color(const ray& r, hittable *world, int depth) {
     vec3 attenuation;
     vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
     if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-      return emitted + attenuation*color(scattered, world, depth+1);
+      return  attenuation*color(scattered, world, depth+1);
     }
     else {
-      return emitted;
+      return vec3(0,0,0);
     }
   }
   else {
-    return vec3(0,0,0);
+    vec3 unit_direction = unit_vector(r.direction());
+    float t = 0.5*(unit_direction.y() + 1.0);
+    return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
   }
 }
 
@@ -39,17 +41,16 @@ hittable *final() {
   hittable **boxlist = new hittable*[10000];
   hittable **boxlist2 = new hittable*[10000];
   material *white = new lambertian( new constant_texture(vec3(0.73, 0.73, 0.73)));
-  //material *white = new lambertian( new constant_texture(vec3(0.73, 1.15, 0.73)));
-  //material *white = new lambertian( new constant_texture(vec3(1.35, 0.95, 0.73)));
+  material *red = new lambertian( new constant_texture(vec3(0.65, 0.05, 0.05)) );
+  
+  material *green = new lambertian( new constant_texture(vec3(0.12, 0.45, 0.15)) );
+  material *light = new diffuse_light( new constant_texture(vec3(7, 7, 7)) );
+  material *blue=new lambertian(new constant_texture(vec3(0.05,0.05,0.65)));
+  material *pink=new lambertian(new constant_texture(vec3(0.8,0.3,0.3)));
   material *ground = new lambertian( new constant_texture(vec3(0.48, 0.83, 0.53)) ); // light green
-  //material *ground = new lambertian( new constant_texture(vec3(0.48, 0.75, 0.83))); // light blue
-  //material *ground = new lambertian( new constant_texture(vec3(0.83, 0.48, 0.73))); // pinkish
-  //material *ball_moving = new lambertian( new constant_texture(vec3(252/255.0, 255/255.0, 56/255.0))); // yellow
-  //material *ball_moving = new lambertian( new constant_texture(vec3(0.7, 0.3, 0.15))); // red-orange
   material *ball_moving = new lambertian( new constant_texture(vec3(0.83, 0.15, 0.3))); // purplish red
-  //material *ball_moving = new lambertian( new constant_texture(vec3(0.2, 0.9, 0.4))); // green
   int b = 0;
-  for (int i = 0; i < nb; i++) {
+  /*for (int i = 0; i < nb; i++) {
     for (int j = 0; j < nb; j++) {
       float w = 100;
       float x0 = -1000 + i*w;
@@ -60,53 +61,45 @@ hittable *final() {
       float z1 = z0 + w;
       boxlist[b++] = new box(vec3(x0,y0,z0), vec3(x1,y1,z1), ground);
     }
-  }
+  }*/
+  boxlist[b++] = new box(vec3(-100000,-20,-100000),vec3(100000,0,100000),ground);
+  boxlist[b++]=new box(vec3(0,0.01,500),vec3(100,100,600),pink);
   int l = 0;
   list[l++] = new bvh_node(boxlist, b, 0, 1);
-  material *light = new diffuse_light( new constant_texture(vec3(7, 7, 7)));
-  list[l++] = new xz_rect(123, 423, 147, 412, 554, light);
-  vec3 center(400, 400, 200);
 
-  list[l++] = new moving_sphere(center, center+vec3(30, 0, 0),
-                                0, 1, 50, ball_moving);
+  /*material *light = new diffuse_light( new constant_texture(vec3(7, 7, 7)));
+  list[l++] = new xz_rect(23, 523, 47, 512, 454, light);*/
 
-  // clear glass sphere
-  list[l++] = new sphere(vec3(260, 150, 45), 50, new dielectric(1.5));
-
-  // metal
-  list[l++] = new sphere(vec3(0, 150, 145), 50,
-                         new metal(vec3(0.8, 0.8, 0.9), 10.0));
-
-
-  hittable *glassy = new sphere(vec3(360, 150, 145), 70, new dielectric(1.5));
-  list[l++] = glassy;
-  list[l++] = new constant_medium(glassy, 0.20,
-                                  new constant_texture(vec3(254/255.0, 254/255.0, 56/255.0))); // yellowish
-                                  // new constant_texture(vec3(0.83, 0.15, 0.73)));
-                                  // new constant_texture(vec3(0.2, 0.9, 0.4)));
-                                  // new constant_texture(vec3(0.2, 0.4, 0.9)));
-
-  hittable *boundary = new sphere(vec3(0, 0, 0), 5000, new dielectric(1.5));
-  list[l++] = new constant_medium(boundary, 0.00008,
-                                  new constant_texture(vec3(0.95, 0.95, 0.95)));
   int nx, ny, nn;
-  unsigned char *tex_data = stbi_load("assets/earthmap.jpg", &nx, &ny, &nn, 0);
+  unsigned char *tex_data = stbi_load("assets/xiaohui.jpg", &nx, &ny, &nn, 0);
   material *emat =  new lambertian(new image_texture(tex_data, nx, ny));
-  list[l++] = new sphere(vec3(400, 200, 400), 100, emat);
-  //texture *pertext = new noise_texture(0.1);
-  //texture *pertext = new noise_texture(4.0);
-  //list[l++] =  new sphere(vec3(220, 280, 300), 80, new lambertian( pertext ));
-  // bubble
-  list[l++] =  new sphere(vec3(220, 280, 300), 80, new dielectric( 1.5 ));
-  list[l++] =  new sphere(vec3(220, 280, 300), -(80-0.005), new dielectric( 1.5 ));
+  list[l++] = new sphere(vec3(400, 100, 400), 100, emat);
 
-  int ns = 800;
+  list[l++]=new sphere(vec3(700,60,600),60,new dielectric(1.5));
+  
+  list[l++]=new sphere(vec3(770,50,770),50,green);
+  list[l++]=new sphere(vec3(-900,100,-900),100,emat);
+  list[l++]=new sphere(vec3(-900,100,800),100,red);
+  list[l++]=new sphere(vec3(900,40,300),40,blue);
+  list[l++]=new sphere(vec3(700,80,350),80,new metal(vec3(0.7,0.6,0.5),0));
+  
+  list[l++]=new sphere(vec3(850,50,550),50,red);
+  //list[l++]=new sphere(vec3(0,50,600),50,pink);
+  
+  //list[l++]=new sphere(vec3(350,100,70),100,new metal(vec3(0.7,0.6,0.5),0));
+  list[l++]=new sphere(vec3(0,90,0),90,new dielectric(1.5));
+  
+
+  list[l++] =  new sphere(vec3(-900, 80, 200), 80, new dielectric( 1.5 ));
+  //list[l++] =  new sphere(vec3(220, 280, 300), -(80-0.005), new dielectric( 1.5 ));
+
+  /*int ns = 800;
   for (int j = 0; j < ns; j++) {
     boxlist2[j] = new
       sphere( vec3(165*random_double(), 165*random_double(), 165*random_double()), 10, white);
   }
   list[l++] = new
-    translate(new rotate_y(new bvh_node(boxlist2, ns, 0.0, 1.0), 15), vec3(-100,270,395));
+    translate(new rotate_y(new bvh_node(boxlist2, ns, 0.0, 1.0), 15), vec3(-100,270,395));*/
   return new hittable_list(list,l);
 }
 
@@ -211,7 +204,7 @@ hittable *cornell_box_blocks() {
     material *white = new lambertian(new constant_texture(vec3(0.73, 0.73, 0.73)));
     material *green = new lambertian(new constant_texture(vec3(0.12, 0.45, 0.15)));
     material *light = new diffuse_light(new constant_texture(vec3(15, 15, 15)));
-
+    material *blue=new lambertian(new constant_texture(vec3(0.05,0.05,0.65)));
     list[i++] = new flip_normals(new yz_rect(0, 555, 0, 555, 555, green));
     list[i++] = new yz_rect(0, 555, 0, 555, 0, red);
 
@@ -269,7 +262,7 @@ hittable *simple_light() {
 
 hittable *globe() {
   int nx, ny, nn;
-  unsigned char *tex_data = stbi_load("assets/earthmap.jpg", &nx, &ny, &nn, 0);
+  unsigned char *tex_data = stbi_load("assets/earthmap-old.jpg", &nx, &ny, &nn, 0);
   material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
   return new sphere(vec3(0,0, 0), 2, mat);
 
@@ -423,8 +416,10 @@ int main (int argc, char** argv) {
   // float aperture = 0.0;
   // float vfov = 40.0;
 
-  vec3 lookfrom(478, 278, -600);
-  vec3 lookat(290,278,0);
+  /*vec3 lookfrom(478, 278, -600);
+  vec3 lookat(290,278,0); */
+  vec3 lookfrom(1600,278,800);
+  vec3 lookat(400,278,400);
   float dist_to_focus = 10.0;
   float aperture = 0.0;
   float vfov = 40.0;
